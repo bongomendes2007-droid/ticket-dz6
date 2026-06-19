@@ -25,7 +25,7 @@ export default function Footer() {
         <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.2fr]">
           {/* Brand */}
           <div>
-            <Logo variant="light" />
+            <Logo variant="light" height={48} />
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/70">
               Sua nova plataforma de criação e gerenciamento de eventos.
             </p>
