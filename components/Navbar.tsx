@@ -30,9 +30,9 @@ export default function Navbar() {
           : "bg-white/60 backdrop-blur-sm"
       }`}
     >
-      <nav className="section-container flex h-16 items-center justify-between md:h-20">
+      <nav className="section-container flex h-20 items-center justify-between md:h-24">
         <a href="#top" aria-label="Ticket DZ6 — início">
-          <Logo />
+          <Logo height={56} />
         </a>
 
         {/* Desktop links */}
