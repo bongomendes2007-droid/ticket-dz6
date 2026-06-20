@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import Logo from "./Logo";
 
@@ -51,18 +52,18 @@ export default function Navbar() {
 
         {/* Desktop actions */}
         <div className="hidden items-center gap-3 lg:flex">
-          <a
-            href="#login"
+          <Link
+            href="/login"
             className="text-sm font-semibold text-brand-ink transition-colors hover:text-brand-blue"
           >
             Fazer Login
-          </a>
-          <a
-            href="#criar-evento"
+          </Link>
+          <Link
+            href="/cadastro"
             className="rounded-full bg-brand-blue px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:bg-brand-blue-dark hover:shadow-md"
           >
             Criar Evento
-          </a>
+          </Link>
         </div>
 
         {/* Mobile toggle */}
@@ -96,20 +97,20 @@ export default function Navbar() {
             </li>
           ))}
           <li className="mt-2 flex flex-col gap-3 px-2">
-            <a
-              href="#login"
+            <Link
+              href="/login"
               onClick={() => setOpen(false)}
               className="rounded-full border border-brand-blue/20 px-5 py-2.5 text-center text-sm font-semibold text-brand-ink"
             >
               Fazer Login
-            </a>
-            <a
-              href="#criar-evento"
+            </Link>
+            <Link
+              href="/cadastro"
               onClick={() => setOpen(false)}
               className="rounded-full bg-brand-blue px-5 py-2.5 text-center text-sm font-semibold text-white shadow-soft"
             >
               Criar Evento
-            </a>
+            </Link>
           </li>
         </ul>
       </div>

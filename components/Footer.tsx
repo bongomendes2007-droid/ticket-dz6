@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Mail, MapPin, Instagram, Facebook, Linkedin } from "lucide-react";
 import Logo from "./Logo";
 
@@ -7,7 +8,7 @@ const linksUteis = [
   { label: "Eventos", href: "#categorias" },
   { label: "Perguntas Frequentes", href: "#faq" },
   { label: "Contato", href: "#contato" },
-  { label: "Cadastro", href: "#criar-evento" },
+  { label: "Cadastro", href: "/cadastro" },
   { label: "Políticas de Privacidade", href: "#privacidade" },
   { label: "Termos de Uso", href: "#termos" },
 ];
@@ -52,16 +53,25 @@ export default function Footer() {
               Links úteis
             </h3>
             <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3">
-              {linksUteis.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-white/70 transition-colors hover:text-brand-orange"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
+              {linksUteis.map((link) => {
+                const classe =
+                  "text-sm text-white/70 transition-colors hover:text-brand-orange";
+                // Rotas internas (ex: /cadastro) usam Link; ancoras de rolagem
+                // (#top, #faq...) continuam como <a>.
+                return (
+                  <li key={link.label}>
+                    {link.href.startsWith("/") ? (
+                      <Link href={link.href} className={classe}>
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <a href={link.href} className={classe}>
+                        {link.label}
+                      </a>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
 

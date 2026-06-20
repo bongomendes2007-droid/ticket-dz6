@@ -33,7 +33,46 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANTE: nao insira codigo entre createServerClient e getUser().
   // Um erro aqui pode dificultar a depuracao de problemas de sessao.
-  await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  return supabaseResponse
+  const path = request.nextUrl.pathname
+
+  // Rotas que exigem login.
+  const rotaProtegida = path.startsWith("/painel")
+  // Telas de auth: usuario ja logado nao deve ver.
+  const rotaDeAuth =
+    path === "/login" ||
+    path === "/cadastro" ||
+    path === "/recuperar-senha";
+
+  // Nao logado tentando acessar area protegida -> manda para o login.
+  if (!user && rotaProtegida) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return redirecionarPreservandoCookies(url, supabaseResponse);
+  }
+
+  // Ja logado tentando acessar telas de auth -> manda para o painel.
+  if (user && rotaDeAuth) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/painel";
+    return redirecionarPreservandoCookies(url, supabaseResponse);
+  }
+
+  return supabaseResponse;
+}
+
+// Ao redirecionar, precisamos copiar os cookies de sessao ja atualizados
+// para a nova resposta — senao o refresh feito pelo getUser() seria perdido.
+function redirecionarPreservandoCookies(
+  url: URL,
+  from: NextResponse
+): NextResponse {
+  const redirect = NextResponse.redirect(url);
+  from.cookies.getAll().forEach((cookie) => {
+    redirect.cookies.set(cookie);
+  });
+  return redirect;
 }

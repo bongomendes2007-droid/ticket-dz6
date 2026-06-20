@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -45,13 +46,13 @@ export default function Hero() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <a
-              href="#criar-evento"
+            <Link
+              href="/cadastro"
               className="group inline-flex items-center justify-center gap-2 rounded-full bg-brand-blue px-7 py-3.5 text-base font-semibold text-white shadow-soft transition-all hover:bg-brand-blue-dark hover:shadow-lg"
             >
               Começar agora
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </a>
+            </Link>
             <a
               href="#categorias"
               className="inline-flex items-center justify-center rounded-full border border-brand-blue/20 bg-white px-7 py-3.5 text-base font-semibold text-brand-ink transition-colors hover:border-brand-blue/40 hover:text-brand-blue"
