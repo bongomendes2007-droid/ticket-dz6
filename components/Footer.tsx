@@ -1,16 +1,14 @@
 import Link from "next/link";
-import { Mail, MapPin, Instagram, Facebook, Linkedin } from "lucide-react";
+import { Mail, MapPin, Phone, Instagram, Facebook, Linkedin } from "lucide-react";
 import Logo from "./Logo";
 
 const linksUteis = [
-  { label: "Home", href: "#top" },
-  { label: "Planos e Preços", href: "#planos" },
-  { label: "Eventos", href: "#categorias" },
-  { label: "Perguntas Frequentes", href: "#faq" },
-  { label: "Contato", href: "#contato" },
+  { label: "Início", href: "/" },
+  { label: "Eventos", href: "/#eventos" },
   { label: "Cadastro", href: "/cadastro" },
-  { label: "Políticas de Privacidade", href: "#privacidade" },
-  { label: "Termos de Uso", href: "#termos" },
+  { label: "Área do Usuário", href: "/login" },
+  { label: "Área do Organizador", href: "/painel" },
+  { label: "Termos de Serviço", href: "/#termos" },
 ];
 
 const socials = [
@@ -28,7 +26,7 @@ export default function Footer() {
           <div>
             <Logo variant="light" height={64} />
             <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/70">
-              Sua nova plataforma de criação e gerenciamento de eventos.
+              Sua plataforma de eventos.
             </p>
             <div className="mt-6 flex gap-3">
               {socials.map((social) => {
@@ -96,6 +94,15 @@ export default function Footer() {
                   className="transition-colors hover:text-brand-orange"
                 >
                   ticketdz6@hotmail.com
+                </a>
+              </li>
+              <li className="flex gap-3">
+                <Phone className="mt-0.5 h-5 w-5 shrink-0 text-brand-orange" />
+                <a
+                  href="tel:+5586999999999"
+                  className="transition-colors hover:text-brand-orange"
+                >
+                  (86) 99999-9999
                 </a>
               </li>
             </ul>

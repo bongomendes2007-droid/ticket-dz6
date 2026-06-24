@@ -1,23 +1,26 @@
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import Steps from "@/components/Steps";
-import Features from "@/components/Features";
-import Categories from "@/components/Categories";
-import Faq from "@/components/Faq";
-import Testimonials from "@/components/Testimonials";
+import MarketplaceNavbar from "@/components/MarketplaceNavbar";
+import FeaturedCarousel from "@/components/FeaturedCarousel";
+import EventsExplorer from "@/components/EventsExplorer";
 import Footer from "@/components/Footer";
+import { buscarEventosPublicados } from "@/lib/eventos";
 
-export default function Home() {
+// Renderizacao dinamica: sempre busca os eventos atuais do banco (SSR).
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const eventos = await buscarEventosPublicados();
+
+  // Destaques do carrossel: os 3 eventos mais recentes (criados por ultimo).
+  // Como `eventos` vem ordenado por data do evento, pegamos os com data mais
+  // proxima para o banner; usamos ate 3.
+  const destaques = eventos.slice(0, 3);
+
   return (
     <>
-      <Navbar />
-      <main className="overflow-x-clip">
-        <Hero />
-        <Steps />
-        <Features />
-        <Categories />
-        <Faq />
-        <Testimonials />
+      <MarketplaceNavbar />
+      <main className="overflow-x-clip bg-white">
+        <FeaturedCarousel eventos={destaques} />
+        <EventsExplorer eventos={eventos} />
       </main>
       <Footer />
     </>
