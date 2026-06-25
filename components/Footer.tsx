@@ -1,14 +1,24 @@
 import Link from "next/link";
-import { Mail, MapPin, Phone, Instagram, Facebook, Linkedin } from "lucide-react";
+import { Mail, MapPin, Instagram, Facebook, Linkedin } from "lucide-react";
 import Logo from "./Logo";
+import { CATEGORIAS } from "@/lib/categorias";
 
-const linksUteis = [
+const sejaProdutor = [
+  { label: "Criar evento", href: "/cadastro" },
+  { label: "Painel do organizador", href: "/painel" },
+  { label: "Publicar ingressos", href: "/painel" },
+];
+
+const aTicket = [
   { label: "Início", href: "/" },
-  { label: "Eventos", href: "/#eventos" },
-  { label: "Cadastro", href: "/cadastro" },
   { label: "Área do Usuário", href: "/login" },
   { label: "Área do Organizador", href: "/painel" },
-  { label: "Termos de Serviço", href: "/#termos" },
+];
+
+const ajuda = [
+  { label: "Dúvidas frequentes", href: "/#faq" },
+  { label: "Fale conosco", href: "mailto:ticketdz6@hotmail.com" },
+  { label: "Termos de serviço", href: "/#termos" },
 ];
 
 const socials = [
@@ -17,18 +27,69 @@ const socials = [
   { icon: Linkedin, label: "LinkedIn", href: "#" },
 ];
 
-export default function Footer() {
+function Coluna({
+  titulo,
+  links,
+}: {
+  titulo: string;
+  links: { label: string; href: string }[];
+}) {
+  return (
+    <div>
+      <h3 className="text-sm font-bold uppercase tracking-wide text-white/90">
+        {titulo}
+      </h3>
+      <ul className="mt-4 space-y-2.5">
+        {links.map((link) => {
+          const classe =
+            "text-sm text-white/65 transition-colors hover:text-brand-orange";
+          return (
+            <li key={link.label}>
+              {link.href.startsWith("/") ? (
+                <Link href={link.href} className={classe}>
+                  {link.label}
+                </Link>
+              ) : (
+                <a href={link.href} className={classe}>
+                  {link.label}
+                </a>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+export default function Footer({ cidades = [] }: { cidades?: string[] }) {
+  const colunaCidades = (cidades.length ? cidades : ["Teresina"]).slice(0, 6).map(
+    (c) => ({ label: c, href: `/?cidade=${encodeURIComponent(c)}` })
+  );
+  const colunaCategorias = CATEGORIAS.slice(0, 6).map((c) => ({
+    label: c,
+    href: `/?categoria=${encodeURIComponent(c)}`,
+  }));
+
   return (
     <footer id="contato" className="bg-brand-ink text-white">
-      <div className="section-container py-16">
-        <div className="grid gap-12 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.2fr]">
-          {/* Brand */}
-          <div>
-            <Logo variant="light" height={64} />
-            <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/70">
-              Sua plataforma de eventos.
+      <div className="section-container py-14">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_repeat(5,1fr)]">
+          {/* Marca */}
+          <div className="sm:col-span-2 lg:col-span-1">
+            <Logo variant="light" height={56} />
+            <p className="mt-5 flex items-start gap-2 text-sm text-white/65">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-orange" />
+              Teresina - PI
             </p>
-            <div className="mt-6 flex gap-3">
+            <a
+              href="mailto:ticketdz6@hotmail.com"
+              className="mt-2 flex items-center gap-2 text-sm text-white/65 transition-colors hover:text-brand-orange"
+            >
+              <Mail className="h-4 w-4 shrink-0 text-brand-orange" />
+              ticketdz6@hotmail.com
+            </a>
+            <div className="mt-5 flex gap-3">
               {socials.map((social) => {
                 const Icon = social.icon;
                 return (
@@ -45,68 +106,11 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Links úteis */}
-          <div>
-            <h3 className="text-sm font-bold uppercase tracking-wide text-white/90">
-              Links úteis
-            </h3>
-            <ul className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3">
-              {linksUteis.map((link) => {
-                const classe =
-                  "text-sm text-white/70 transition-colors hover:text-brand-orange";
-                // Rotas internas (ex: /cadastro) usam Link; ancoras de rolagem
-                // (#top, #faq...) continuam como <a>.
-                return (
-                  <li key={link.label}>
-                    {link.href.startsWith("/") ? (
-                      <Link href={link.href} className={classe}>
-                        {link.label}
-                      </Link>
-                    ) : (
-                      <a href={link.href} className={classe}>
-                        {link.label}
-                      </a>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          {/* Contato */}
-          <div>
-            <h3 className="text-sm font-bold uppercase tracking-wide text-white/90">
-              Contato
-            </h3>
-            <ul className="mt-5 space-y-4 text-sm text-white/70">
-              <li className="flex gap-3">
-                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-brand-orange" />
-                <span>
-                  Avenida Zequinha Freire, 201, Santa Isabel
-                  <br />
-                  CEP 64053-400, Teresina - PI
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <Mail className="mt-0.5 h-5 w-5 shrink-0 text-brand-orange" />
-                <a
-                  href="mailto:ticketdz6@hotmail.com"
-                  className="transition-colors hover:text-brand-orange"
-                >
-                  ticketdz6@hotmail.com
-                </a>
-              </li>
-              <li className="flex gap-3">
-                <Phone className="mt-0.5 h-5 w-5 shrink-0 text-brand-orange" />
-                <a
-                  href="tel:+5586999999999"
-                  className="transition-colors hover:text-brand-orange"
-                >
-                  (86) 99999-9999
-                </a>
-              </li>
-            </ul>
-          </div>
+          <Coluna titulo="Cidades" links={colunaCidades} />
+          <Coluna titulo="Categorias" links={colunaCategorias} />
+          <Coluna titulo="Seja Produtor" links={sejaProdutor} />
+          <Coluna titulo="A Ticket DZ6" links={aTicket} />
+          <Coluna titulo="Ajuda" links={ajuda} />
         </div>
       </div>
 
