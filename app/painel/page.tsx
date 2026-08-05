@@ -1,12 +1,15 @@
 import Link from "next/link";
-import { Plus, CalendarDays, MapPin, Ticket } from "lucide-react";
+import { Plus, CalendarDays, MapPin, Ticket, Wallet, TicketCheck, CalendarCheck2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import EventoCapaPlaceholder from "@/components/EventoCapaPlaceholder";
 import ConectarMercadoPago from "@/components/ConectarMercadoPago";
+import FaturamentoCards from "@/components/FaturamentoCards";
 
 export const dynamic = "force-dynamic";
 
-const MP_MENSAGENS: Record<string, { texto: string; tipo: "ok" | "erro" }> = {
+const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
+const MENSAGENS: Record<string, { texto: string; tipo: "ok" | "erro" }> = {
   sucesso: { texto: "Conta do Mercado Pago conectada com sucesso!", tipo: "ok" },
   desconectado: { texto: "Conta do Mercado Pago desconectada.", tipo: "ok" },
   erro_autorizacao: {
@@ -28,6 +31,10 @@ const MP_MENSAGENS: Record<string, { texto: string; tipo: "ok" | "erro" }> = {
   erro_desconectar: { texto: "Falha ao desconectar a conta.", tipo: "erro" },
   erro_config: {
     texto: "Configuração do Mercado Pago ausente no servidor.",
+    tipo: "erro",
+  },
+  acesso_negado: {
+    texto: "Você não tem permissão para acessar o painel administrativo.",
     tipo: "erro",
   },
 };
@@ -64,7 +71,7 @@ function formatarData(data: string | null): string {
 export default async function PainelPage({
   searchParams,
 }: {
-  searchParams: { mp?: string };
+  searchParams: { mp?: string; erro?: string };
 }) {
   const supabase = await createClient();
   const {
@@ -91,23 +98,71 @@ export default async function PainelPage({
     .maybeSingle();
 
   const mpConectado = Boolean(profile?.mp_user_id);
-  const mpMensagem = searchParams?.mp ? MP_MENSAGENS[searchParams.mp] : undefined;
+
+  // --- Faturamento do organizador (RLS ja restringe orders/tickets aos
+  //     PROPRIOS eventos, ver migration 005) ---
+  const { data: ordersAprovadas } = await supabase
+    .from("orders")
+    .select("valor_organizador")
+    .eq("status", "aprovado");
+
+  const totalArrecadado = (ordersAprovadas ?? []).reduce(
+    (soma, o) => soma + Number(o.valor_organizador),
+    0
+  );
+
+  const { count: ingressosVendidos } = await supabase
+    .from("tickets")
+    .select("id", { count: "exact", head: true })
+    .neq("status", "cancelado");
+
+  const eventosPublicados = lista.filter((e) => e.status === "publicado").length;
+
+  const mensagem =
+    (searchParams?.mp && MENSAGENS[searchParams.mp]) ||
+    (searchParams?.erro && MENSAGENS[searchParams.erro]) ||
+    undefined;
 
   return (
     <div>
-      {mpMensagem && (
+      {mensagem && (
         <div
           className={`mb-6 rounded-xl px-4 py-3 text-sm font-medium ${
-            mpMensagem.tipo === "ok"
+            mensagem.tipo === "ok"
               ? "bg-green-50 text-green-700"
               : "bg-red-50 text-red-700"
           }`}
         >
-          {mpMensagem.texto}
+          {mensagem.texto}
         </div>
       )}
 
-      <ConectarMercadoPago conectado={mpConectado} />
+      <h1 className="text-2xl font-bold text-brand-ink">Faturamento</h1>
+      <div className="mt-4">
+        <FaturamentoCards
+          cards={[
+            {
+              label: "Total arrecadado",
+              valor: brl.format(totalArrecadado),
+              icon: Wallet,
+            },
+            {
+              label: "Ingressos vendidos",
+              valor: String(ingressosVendidos ?? 0),
+              icon: TicketCheck,
+            },
+            {
+              label: "Eventos publicados",
+              valor: String(eventosPublicados),
+              icon: CalendarCheck2,
+            },
+          ]}
+        />
+      </div>
+
+      <div className="mt-8">
+        <ConectarMercadoPago conectado={mpConectado} />
+      </div>
 
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

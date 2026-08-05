@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import Logo from "@/components/Logo";
 import LogoutButton from "@/components/LogoutButton";
@@ -17,7 +18,7 @@ export default async function PainelLayout({
   // proprio usuario como fallback para nunca exibir vazio.
   const { data: profile } = await supabase
     .from("profiles")
-    .select("nome_completo")
+    .select("nome_completo, is_admin")
     .eq("id", user?.id ?? "")
     .maybeSingle();
 
@@ -27,6 +28,10 @@ export default async function PainelLayout({
     user?.email ??
     "Organizador";
 
+  // O link so ajuda na navegacao — quem protege /admin de verdade e a
+  // checagem no servidor em app/admin/page.tsx (e de novo na API route).
+  const ehAdmin = profile?.is_admin === true;
+
   return (
     <div className="min-h-screen bg-brand-light">
       <header className="border-b border-brand-blue/10 bg-white">
@@ -35,6 +40,15 @@ export default async function PainelLayout({
             <Logo height={44} />
           </Link>
           <div className="flex items-center gap-4">
+            {ehAdmin && (
+              <Link
+                href="/admin"
+                className="hidden items-center gap-1.5 text-sm font-medium text-brand-ink/80 transition-colors hover:text-brand-blue sm:flex"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Admin
+              </Link>
+            )}
             <span className="hidden text-sm text-brand-gray sm:block">
               Olá, <span className="font-semibold text-brand-ink">{nome}</span>
             </span>
