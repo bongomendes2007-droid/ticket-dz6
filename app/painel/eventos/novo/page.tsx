@@ -39,6 +39,7 @@ export default function NovoEventoPage() {
   const [categoria, setCategoria] = useState("");
   const [dataEvento, setDataEvento] = useState("");
   const [local, setLocal] = useState("");
+  const [cidade, setCidade] = useState("");
   const [imagem, setImagem] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [lotes, setLotes] = useState<Lote[]>([novoLote()]);
@@ -67,6 +68,7 @@ export default function NovoEventoPage() {
 
   function validar(): string | null {
     if (titulo.trim().length < 3) return "Informe um título para o evento.";
+    if (cidade.trim().length < 2) return "Informe a cidade do evento.";
     if (!dataEvento) return "Informe a data do evento.";
     if (new Date(dataEvento) <= new Date())
       return "A data do evento deve ser no futuro.";
@@ -156,6 +158,7 @@ export default function NovoEventoPage() {
           categoria: categoria || null,
           data_evento: new Date(dataEvento).toISOString(),
           local: local.trim() || null,
+          cidade: cidade.trim(),
           imagem_capa: imagemUrl,
           slug,
           status,
@@ -307,14 +310,26 @@ export default function NovoEventoPage() {
               </div>
             </div>
 
-            <div>
-              <label className={labelClass}>Local</label>
-              <input
-                className={inputClass}
-                value={local}
-                onChange={(e) => setLocal(e.target.value)}
-                placeholder="Ex: Centro de Convenções, São Paulo - SP"
-              />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className={labelClass}>Local *</label>
+                <input
+                  className={inputClass}
+                  value={local}
+                  onChange={(e) => setLocal(e.target.value)}
+                  placeholder="Ex: Centro de Convenções"
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Cidade *</label>
+                <input
+                  className={inputClass}
+                  value={cidade}
+                  onChange={(e) => setCidade(e.target.value)}
+                  placeholder="Ex: São Paulo"
+                />
+              </div>
             </div>
 
             <div>

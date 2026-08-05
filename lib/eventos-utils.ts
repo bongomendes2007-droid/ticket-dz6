@@ -8,6 +8,7 @@ export type EventoCard = {
   categoria: string | null;
   data_evento: string | null;
   local: string | null;
+  cidade: string | null;
   imagem_capa: string | null;
   menorPreco: number | null;
 };
@@ -50,17 +51,4 @@ export function normalizar(texto: string): string {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "");
-}
-
-// Tenta extrair o nome da cidade a partir do campo `local` (texto livre).
-// Estrategia: ultimo segmento separado por virgula, removendo " - UF" no fim.
-export function cidadeDe(local: string | null): string | null {
-  if (!local) return null;
-  const partes = local
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  let cidade = partes.length ? partes[partes.length - 1] : local.trim();
-  cidade = cidade.replace(/\s*-\s*[A-Za-z]{2}\s*$/, "").trim();
-  return cidade || null;
 }

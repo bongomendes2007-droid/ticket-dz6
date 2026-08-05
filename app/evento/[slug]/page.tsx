@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { CalendarDays, MapPin, Tag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import Logo from "@/components/Logo";
+import EventoCapaPlaceholder from "@/components/EventoCapaPlaceholder";
 
 type Lote = {
   id: string;
@@ -18,6 +19,7 @@ type Evento = {
   categoria: string | null;
   data_evento: string | null;
   local: string | null;
+  cidade: string | null;
   imagem_capa: string | null;
   ticket_batches: Lote[];
 };
@@ -46,7 +48,7 @@ async function buscarEvento(slug: string): Promise<Evento | null> {
   const { data } = await supabase
     .from("events")
     .select(
-      "titulo, descricao, categoria, data_evento, local, imagem_capa, status, ticket_batches(id, nome, preco, ativo)"
+      "titulo, descricao, categoria, data_evento, local, cidade, imagem_capa, status, ticket_batches(id, nome, preco, ativo)"
     )
     .eq("slug", slug)
     .eq("status", "publicado")
@@ -109,7 +111,7 @@ export default async function EventoPublicoPage({
                 className="h-64 w-full object-cover md:h-96"
               />
             ) : (
-              <div className="h-64 w-full bg-hero-gradient md:h-96" />
+              <EventoCapaPlaceholder className="h-64 md:h-96" />
             )}
           </div>
         </div>
@@ -136,10 +138,10 @@ export default async function EventoPublicoPage({
                 {formatarDataCompleta(evento.data_evento)}
               </span>
             </span>
-            {evento.local && (
+            {(evento.local || evento.cidade) && (
               <span className="flex items-center gap-3">
                 <MapPin className="h-5 w-5 shrink-0 text-brand-blue" />
-                {evento.local}
+                {[evento.local, evento.cidade].filter(Boolean).join(" — ")}
               </span>
             )}
           </div>

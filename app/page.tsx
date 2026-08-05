@@ -10,7 +10,7 @@ import Footer from "@/components/Footer";
 import { CalendarX } from "lucide-react";
 import { buscarEventosPublicados } from "@/lib/eventos";
 import { CATEGORIAS } from "@/lib/categorias";
-import { cidadeDe, normalizar } from "@/lib/eventos-utils";
+import { normalizar } from "@/lib/eventos-utils";
 
 // SSR: sempre busca os eventos atuais do banco (bom para SEO e dados frescos).
 export const dynamic = "force-dynamic";
@@ -27,7 +27,7 @@ export default async function Home({
   // Cidades distintas (para navbar, footer e secao "na sua cidade").
   const cidadesMap = new Map<string, CidadeCard>();
   for (const e of eventos) {
-    const nome = cidadeDe(e.local);
+    const nome = e.cidade;
     if (!nome) continue;
     const chave = normalizar(nome);
     const atual = cidadesMap.get(chave);
@@ -55,12 +55,11 @@ export default async function Home({
     const filtrados = eventos.filter((e) => {
       if (categoria && e.categoria !== categoria) return false;
       if (cidade) {
-        const c = cidadeDe(e.local);
-        if (!c || normalizar(c) !== cidadeNorm) return false;
+        if (!e.cidade || normalizar(e.cidade) !== cidadeNorm) return false;
       }
       if (termo) {
         const alvo = normalizar(
-          `${e.titulo} ${e.local ?? ""} ${e.categoria ?? ""}`
+          `${e.titulo} ${e.local ?? ""} ${e.cidade ?? ""} ${e.categoria ?? ""}`
         );
         if (!alvo.includes(termo)) return false;
       }

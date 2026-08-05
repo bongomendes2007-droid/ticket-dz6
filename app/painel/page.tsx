@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Plus, CalendarDays, MapPin, Ticket } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import EventoCapaPlaceholder from "@/components/EventoCapaPlaceholder";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,7 @@ type EventoComLotes = {
   titulo: string;
   data_evento: string | null;
   local: string | null;
+  cidade: string | null;
   status: string;
   imagem_capa: string | null;
   slug: string;
@@ -44,7 +46,7 @@ export default async function PainelPage() {
   const { data: eventos } = await supabase
     .from("events")
     .select(
-      "id, titulo, data_evento, local, status, imagem_capa, slug, ticket_batches(count)"
+      "id, titulo, data_evento, local, cidade, status, imagem_capa, slug, ticket_batches(count)"
     )
     .eq("organizer_id", user?.id ?? "")
     .order("criado_em", { ascending: false });
@@ -121,9 +123,7 @@ function CardEvento({ evento }: { evento: EventoComLotes }) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-brand-blue/30">
-            <Ticket className="h-10 w-10" />
-          </div>
+          <EventoCapaPlaceholder />
         )}
         <span
           className={`absolute right-3 top-3 rounded-full px-3 py-1 text-xs font-semibold ${status.classe}`}
@@ -141,10 +141,12 @@ function CardEvento({ evento }: { evento: EventoComLotes }) {
             <CalendarDays className="h-4 w-4 shrink-0 text-brand-blue" />
             {formatarData(evento.data_evento)}
           </span>
-          {evento.local && (
+          {(evento.local || evento.cidade) && (
             <span className="flex items-center gap-2">
               <MapPin className="h-4 w-4 shrink-0 text-brand-blue" />
-              <span className="line-clamp-1">{evento.local}</span>
+              <span className="line-clamp-1">
+                {[evento.local, evento.cidade].filter(Boolean).join(" — ")}
+              </span>
             </span>
           )}
           <span className="flex items-center gap-2">

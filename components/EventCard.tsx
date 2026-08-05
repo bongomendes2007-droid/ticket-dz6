@@ -6,6 +6,7 @@ import {
   formatarHora,
   formatarPreco,
 } from "@/lib/eventos-utils";
+import EventoCapaPlaceholder from "@/components/EventoCapaPlaceholder";
 
 export default function EventCard({ evento }: { evento: Evento }) {
   return (
@@ -23,7 +24,7 @@ export default function EventCard({ evento }: { evento: Evento }) {
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="h-full w-full bg-hero-gradient" />
+          <EventoCapaPlaceholder />
         )}
 
         {evento.categoria && (

@@ -14,6 +14,7 @@ type EventoRow = {
   categoria: string | null;
   data_evento: string | null;
   local: string | null;
+  cidade: string | null;
   imagem_capa: string | null;
   ticket_batches: { preco: number; ativo: boolean }[] | null;
 };
@@ -33,7 +34,7 @@ export async function buscarEventosPublicados(): Promise<EventoCard[]> {
   const { data, error } = await supabase
     .from("events")
     .select(
-      "id, titulo, slug, categoria, data_evento, local, imagem_capa, ticket_batches(preco, ativo)"
+      "id, titulo, slug, categoria, data_evento, local, cidade, imagem_capa, ticket_batches(preco, ativo)"
     )
     .eq("status", "publicado")
     .order("data_evento", { ascending: true });
@@ -50,6 +51,7 @@ export async function buscarEventosPublicados(): Promise<EventoCard[]> {
     categoria: e.categoria,
     data_evento: e.data_evento,
     local: e.local,
+    cidade: e.cidade,
     imagem_capa: e.imagem_capa,
     menorPreco: menorPrecoAtivo(e.ticket_batches),
   }));

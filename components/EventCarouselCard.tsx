@@ -5,6 +5,7 @@ import {
   formatarData,
   formatarPreco,
 } from "@/lib/eventos-utils";
+import EventoCapaPlaceholder from "@/components/EventoCapaPlaceholder";
 
 // Card no formato Sympla para uso dentro dos carrosseis horizontais.
 // Largura fixa, card inteiro clicavel, hover sutil.
@@ -25,7 +26,7 @@ export default function EventCarouselCard({ evento }: { evento: Evento }) {
             className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="h-full w-full bg-hero-gradient" />
+          <EventoCapaPlaceholder />
         )}
         {evento.categoria && (
           <span className="absolute left-3 top-3 rounded-full bg-brand-orange px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm">

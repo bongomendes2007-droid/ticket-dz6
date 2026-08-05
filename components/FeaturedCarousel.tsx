@@ -8,6 +8,7 @@ import {
   formatarData,
   formatarPreco,
 } from "@/lib/eventos-utils";
+import EventoCapaPlaceholder from "@/components/EventoCapaPlaceholder";
 
 export default function FeaturedCarousel({
   eventos,
@@ -50,7 +51,7 @@ export default function FeaturedCarousel({
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="h-full w-full bg-hero-gradient" />
+                <EventoCapaPlaceholder />
               )}
 
               {/* Gradiente para legibilidade do texto */}
