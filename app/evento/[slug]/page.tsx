@@ -5,15 +5,19 @@ import { CalendarDays, MapPin, Tag } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import Logo from "@/components/Logo";
 import EventoCapaPlaceholder from "@/components/EventoCapaPlaceholder";
+import CheckoutModal, { type LoteDisponivel } from "@/components/CheckoutModal";
 
 type Lote = {
   id: string;
   nome: string;
   preco: number;
   ativo: boolean;
+  quantidade_total: number;
+  quantidade_vendida: number;
 };
 
 type Evento = {
+  id: string;
   titulo: string;
   descricao: string | null;
   categoria: string | null;
@@ -48,7 +52,7 @@ async function buscarEvento(slug: string): Promise<Evento | null> {
   const { data } = await supabase
     .from("events")
     .select(
-      "titulo, descricao, categoria, data_evento, local, cidade, imagem_capa, status, ticket_batches(id, nome, preco, ativo)"
+      "id, titulo, descricao, categoria, data_evento, local, cidade, imagem_capa, status, ticket_batches(id, nome, preco, ativo, quantidade_total, quantidade_vendida)"
     )
     .eq("slug", slug)
     .eq("status", "publicado")
@@ -87,6 +91,14 @@ export default async function EventoPublicoPage({
   if (!evento) notFound();
 
   const lotes = (evento.ticket_batches ?? []).filter((l) => l.ativo);
+  const lotesDisponiveis: LoteDisponivel[] = lotes
+    .map((l) => ({
+      id: l.id,
+      nome: l.nome,
+      preco: Number(l.preco),
+      disponivel: l.quantidade_total - l.quantidade_vendida,
+    }))
+    .filter((l) => l.disponivel > 0);
 
   return (
     <main className="min-h-screen bg-white">
@@ -185,17 +197,11 @@ export default async function EventoPublicoPage({
               </ul>
             )}
 
-            <button
-              type="button"
-              disabled
-              className="mt-5 w-full cursor-not-allowed rounded-full bg-brand-gray/20 px-5 py-3 text-sm font-semibold text-brand-gray"
-              title="A venda de ingressos estará disponível em breve"
-            >
-              Comprar ingresso — Em breve
-            </button>
-            <p className="mt-2 text-center text-xs text-brand-gray">
-              A venda de ingressos será liberada em breve.
-            </p>
+            <CheckoutModal
+              eventoId={evento.id}
+              eventoTitulo={evento.titulo}
+              lotes={lotesDisponiveis}
+            />
           </div>
         </aside>
       </div>
