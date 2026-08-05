@@ -2,8 +2,35 @@ import Link from "next/link";
 import { Plus, CalendarDays, MapPin, Ticket } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import EventoCapaPlaceholder from "@/components/EventoCapaPlaceholder";
+import ConectarMercadoPago from "@/components/ConectarMercadoPago";
 
 export const dynamic = "force-dynamic";
+
+const MP_MENSAGENS: Record<string, { texto: string; tipo: "ok" | "erro" }> = {
+  sucesso: { texto: "Conta do Mercado Pago conectada com sucesso!", tipo: "ok" },
+  desconectado: { texto: "Conta do Mercado Pago desconectada.", tipo: "ok" },
+  erro_autorizacao: {
+    texto: "A autorização no Mercado Pago foi cancelada ou falhou.",
+    tipo: "erro",
+  },
+  erro_state: {
+    texto: "Não foi possível validar a autorização (state inválido). Tente novamente.",
+    tipo: "erro",
+  },
+  erro_token: {
+    texto: "Falha ao trocar o código de autorização pelo token do Mercado Pago.",
+    tipo: "erro",
+  },
+  erro_salvar: {
+    texto: "Autorizado no Mercado Pago, mas houve erro ao salvar. Tente novamente.",
+    tipo: "erro",
+  },
+  erro_desconectar: { texto: "Falha ao desconectar a conta.", tipo: "erro" },
+  erro_config: {
+    texto: "Configuração do Mercado Pago ausente no servidor.",
+    tipo: "erro",
+  },
+};
 
 type EventoComLotes = {
   id: string;
@@ -34,7 +61,11 @@ function formatarData(data: string | null): string {
   }).format(new Date(data));
 }
 
-export default async function PainelPage() {
+export default async function PainelPage({
+  searchParams,
+}: {
+  searchParams: { mp?: string };
+}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -53,9 +84,32 @@ export default async function PainelPage() {
 
   const lista = (eventos ?? []) as EventoComLotes[];
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("mp_user_id")
+    .eq("id", user?.id ?? "")
+    .maybeSingle();
+
+  const mpConectado = Boolean(profile?.mp_user_id);
+  const mpMensagem = searchParams?.mp ? MP_MENSAGENS[searchParams.mp] : undefined;
+
   return (
     <div>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      {mpMensagem && (
+        <div
+          className={`mb-6 rounded-xl px-4 py-3 text-sm font-medium ${
+            mpMensagem.tipo === "ok"
+              ? "bg-green-50 text-green-700"
+              : "bg-red-50 text-red-700"
+          }`}
+        >
+          {mpMensagem.texto}
+        </div>
+      )}
+
+      <ConectarMercadoPago conectado={mpConectado} />
+
+      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-brand-ink">Meus eventos</h1>
           <p className="mt-1 text-sm text-brand-gray">
