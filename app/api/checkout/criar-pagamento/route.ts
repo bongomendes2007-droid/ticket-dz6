@@ -55,7 +55,24 @@ export async function POST(request: Request) {
     return erro("Informe um e-mail válido.");
   }
 
-  const supabase = createServiceClient();
+  // DIAGNOSTICO temporario (bug do "Evento não encontrado" inesperado) —
+  // confirma exatamente o que a rota recebeu antes de consultar o banco.
+  console.error("[checkout] payload recebido:", {
+    event_id,
+    ticket_batch_id,
+    quantidade,
+  });
+
+  let supabase;
+  try {
+    supabase = createServiceClient();
+  } catch (e) {
+    console.error("[checkout] createServiceClient falhou:", e);
+    return erro(
+      "Erro de configuração no servidor. Tente novamente mais tarde.",
+      500
+    );
+  }
 
   // --- 1) Evento precisa existir e estar publicado ---
   const { data: evento, error: erroEvento } = await supabase
@@ -64,7 +81,17 @@ export async function POST(request: Request) {
     .eq("id", event_id)
     .maybeSingle();
 
-  if (erroEvento || !evento) {
+  // IMPORTANTE: nao confundir "a query falhou" (erroEvento — infra, chave
+  // invalida, RLS, etc.) com "a linha nao existe" (evento null sem erro).
+  // Antes os dois casos caiam na mesma mensagem "Evento não encontrado.",
+  // o que escondia problemas reais de configuracao atras de uma mensagem
+  // de 404 enganosa.
+  if (erroEvento) {
+    console.error("[checkout] falha na query de events:", erroEvento);
+    return erro("Erro ao verificar o evento. Tente novamente.", 500);
+  }
+  if (!evento) {
+    console.error("[checkout] evento não encontrado para id:", event_id);
     return erro("Evento não encontrado.", 404);
   }
   if (evento.status !== "publicado") {
@@ -79,7 +106,11 @@ export async function POST(request: Request) {
     .eq("id", ticket_batch_id)
     .maybeSingle();
 
-  if (erroLote || !lote || lote.event_id !== event_id) {
+  if (erroLote) {
+    console.error("[checkout] falha na query de ticket_batches:", erroLote);
+    return erro("Erro ao verificar o lote de ingresso. Tente novamente.", 500);
+  }
+  if (!lote || lote.event_id !== event_id) {
     return erro("Lote de ingresso não encontrado.", 404);
   }
   if (!lote.ativo) {
@@ -102,7 +133,11 @@ export async function POST(request: Request) {
     .eq("id", evento.organizer_id)
     .maybeSingle();
 
-  if (erroPerfil || !perfilOrganizador?.mp_access_token) {
+  if (erroPerfil) {
+    console.error("[checkout] falha na query de profiles:", erroPerfil);
+    return erro("Erro ao verificar o organizador. Tente novamente.", 500);
+  }
+  if (!perfilOrganizador?.mp_access_token) {
     return erro(
       "Organizador ainda não conectou Mercado Pago. Não é possível processar o pagamento.",
       422

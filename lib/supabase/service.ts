@@ -6,14 +6,24 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 // ORGANIZADOR, que nao e o comprador logado). NUNCA importar em Client
 // Components nem expor essa chave ao navegador.
 export function createServiceClient() {
-  return createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false,
-      },
-    }
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  // Falha alto e cedo, com mensagem clara, em vez de deixar o supabase-js
+  // criar um client com `undefined` e falhar mais tarde na query com um
+  // erro generico de auth — que ai vira facilmente uma mensagem enganosa
+  // tipo "nao encontrado" pra quem trata o erro rio abaixo.
+  if (!url || !serviceKey) {
+    throw new Error(
+      "[supabase/service] NEXT_PUBLIC_SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY " +
+        "ausentes nas env vars do servidor. Confira as Environment Variables do projeto na Vercel."
+    );
+  }
+
+  return createSupabaseClient(url, serviceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
 }
