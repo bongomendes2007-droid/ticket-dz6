@@ -153,6 +153,8 @@ export async function POST(request: Request) {
     .from("orders")
     .insert({
       event_id,
+      ticket_batch_id: lote.id,
+      quantidade: qtd,
       buyer_email: buyer_email.trim(),
       buyer_name: buyer_name.trim(),
       buyer_document: buyer_document?.trim() || null,
